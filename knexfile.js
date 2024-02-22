@@ -1,5 +1,5 @@
 // Update with your config settings in .env file
-
+require('dotenv').config();
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
