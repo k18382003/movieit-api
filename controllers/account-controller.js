@@ -57,7 +57,9 @@ const signIn = async (req, res) => {
     const user = await knex('user').where({ email: email }).first();
 
     if (user === undefined) {
-      res.status(400).json({ message: `No such users under : ${email}` });
+      return res
+        .status(400)
+        .json({ message: `No such users under : ${email}` });
     }
 
     // decrypt password
@@ -65,13 +67,16 @@ const signIn = async (req, res) => {
 
     // If data is correct, send a token back to user
     if (user && isPasswordCorrect) {
-      let token = jwt.sign({ username: user.username }, JWT_Key);
-      res.status(200).json({ token: token });
+      let token = jwt.sign(
+        { username: user.username, userId: user.id },
+        JWT_Key
+      );
+      return res.status(200).json({ token: token });
     } else {
-      res.sendStatus(401);
+      return res.sendStatus(401);
     }
   } catch (err) {
-    res.status(500).send(`Error retrieving Users: ${err}`);
+    return res.status(500).send(`Error retrieving Users: ${err}`);
   }
 };
 module.exports = {
