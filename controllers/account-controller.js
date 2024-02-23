@@ -80,7 +80,12 @@ const signIn = async (req, res) => {
   }
 };
 
+const getCurrentUser = async (req, res) => {
+  return res.status(200).send(req.decoded);
+};
+
 module.exports = {
   signUp,
   signIn,
+  getCurrentUser,
 };
