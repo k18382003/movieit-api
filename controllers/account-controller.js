@@ -79,6 +79,7 @@ const signIn = async (req, res) => {
     return res.status(500).send(`Error retrieving Users: ${err}`);
   }
 };
+
 module.exports = {
   signUp,
   signIn,
