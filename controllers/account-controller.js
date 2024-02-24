@@ -40,6 +40,8 @@ const signUp = async (req, res) => {
     const userId = await knex('user').insert(user);
     const profileId = await knex('profile').insert({
       user_id: userId,
+      displayname: user.username,
+      username: user.username,
       postalcode: 'N/A',
     });
 

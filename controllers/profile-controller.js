@@ -19,8 +19,9 @@ const fetchUserProfile = async (req, res) => {
 };
 
 const editUserProfile = async (req, res) => {
+  console.log(req.body);
   const rowsUpdated = await knex('profile')
-    .where({ id: req.params.id })
+    .where({ user_id: req.params.id })
     .update(req.body);
 
   if (rowsUpdated === 0) {
