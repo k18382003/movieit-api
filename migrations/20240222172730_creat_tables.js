@@ -97,8 +97,8 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
   return knex.schema
-    .dropTable('user')
-    .dropTable('profile')
+    .dropTable('message')
     .dropTable('participants')
-    .dropTable('message');
+    .dropTable('profile')
+    .dropTable('user');
 };
