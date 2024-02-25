@@ -13,9 +13,7 @@ const fetchEvents = async (req, res) => {
 };
 
 const fetchEventDetail = async (req, res) => {
-  const details = await knex('event')
-    .where({ id: req.params.id })
-    .first();
+  const details = await knex('event').where({ id: req.params.id }).first();
 
   if (!details) {
     return res.status(404).json({
@@ -27,18 +25,22 @@ const fetchEventDetail = async (req, res) => {
 };
 
 const fetchMyEvents = async (req, res) => {
-  const details = await knex('event').where({ user_id: req.params.id }).first();
+  const myevents = await knex('participants as p')
+    .select(
+      'p.ishost',
+      'p.event_id',
+      'e.movie_name',
+      'e.show_time',
+      'e.cinema'
+    )
+    .join('event as e', 'p.event_id', 'e.id')
+    .where({ 'p.user_id': req.params.id });
 
-  if (!details) {
-    return res.status(404).json({
-      message: `Event with event ${req.params.id} not found`,
-    });
-  }
-
-  return res.status(200).json(details);
+  return res.status(200).json(myevents);
 };
 
 module.exports = {
   fetchEvents,
   fetchEventDetail,
+  fetchMyEvents,
 };
