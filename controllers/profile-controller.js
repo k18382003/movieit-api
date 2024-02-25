@@ -19,7 +19,6 @@ const fetchUserProfile = async (req, res) => {
 };
 
 const editUserProfile = async (req, res) => {
-  console.log(req.body);
   const rowsUpdated = await knex('profile')
     .where({ user_id: req.params.id })
     .update(req.body);
