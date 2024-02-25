@@ -81,7 +81,7 @@ const addEvent = async (req, res) => {
 
     await knex('participants').insert(participant);
 
-    return res.status(201).json(req.body);
+    return res.status(201).json({ ...req.body, eventId: eventId });
   } catch (err) {
     // Return Internal Server Error 500, if the error occurs at the backend
     return res.status(500).json({ message: `Failed signing up: ${err}` });

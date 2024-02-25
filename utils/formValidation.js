@@ -8,8 +8,10 @@
 
 const ValidatingFields = (requestBody, requiredField) => {
   // Validating the feilds
-
   for (var i in requiredField) {
+    if (typeof requestBody[requiredField[i]] != String) {
+      requestBody[requiredField[i]] = String(requestBody[requiredField[i]]);
+    }
     // Checking all required field
     if (!requestBody.hasOwnProperty(requiredField[i])) {
       return { checkCode: 1, field: requiredField[i] };
