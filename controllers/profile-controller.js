@@ -36,7 +36,20 @@ const editUserProfile = async (req, res) => {
   return res.json(updatedUserProfile[0]);
 };
 
+const getProfileByArea = async (req, res) => {
+  let postCodes = req.params.postalcode
+    .split('&')
+    .map((item) => "'" + item + "'")
+    .join(',');
+  const profiles = await knex('profile as p')
+    .select('p.*')
+    .where(knex.raw(`replace(p.postalcode, " ", "") in (${postCodes})`));
+
+  return res.json(profiles);
+};
+
 module.exports = {
   fetchUserProfile,
   editUserProfile,
+  getProfileByArea,
 };
