@@ -4,12 +4,6 @@ const { ValidatingFields, isEmail } = require('../utils/formValidation');
 const fetchEvents = async (req, res) => {
   const events = await knex('event');
 
-  if (!events) {
-    return res.status(404).json({
-      message: `Event with EventID ${req.params.id} not found`,
-    });
-  }
-
   return res.status(200).json(events);
 };
 
@@ -18,7 +12,7 @@ const fetchEventDetail = async (req, res) => {
 
   if (!details) {
     return res.status(404).json({
-      message: `Event with event ${req.params.id} not found`,
+      message: `Event with eventId ${req.params.id} not found`,
     });
   }
 
