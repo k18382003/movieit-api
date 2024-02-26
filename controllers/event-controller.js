@@ -27,7 +27,13 @@ const fetchEventDetail = async (req, res) => {
 
 const fetchMyEvents = async (req, res) => {
   const myevents = await knex('participants as p')
-    .select('p.ishost', 'p.event_id', 'e.movie_name', 'e.show_time', 'e.cinema')
+    .select(
+      'p.ishost',
+      'p.event_id as id',
+      'e.movie_name',
+      'e.show_time',
+      'e.cinema'
+    )
     .join('event as e', 'p.event_id', 'e.id')
     .where({ 'p.user_id': req.params.id });
 
@@ -88,9 +94,21 @@ const addEvent = async (req, res) => {
   }
 };
 
+const deleteEvent = async (req, res) => {
+  try {
+    const result = await knex('event').where({ id: req.params.id }).del();
+
+    return res.status(201).json(result);
+  } catch (err) {
+    // Return Internal Server Error 500, if the error occurs at the backend
+    return res.status(500).json({ message: `Failed signing up: ${err}` });
+  }
+};
+
 module.exports = {
   fetchEvents,
   fetchEventDetail,
   fetchMyEvents,
   addEvent,
+  deleteEvent,
 };
