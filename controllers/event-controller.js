@@ -92,10 +92,31 @@ const deleteEvent = async (req, res) => {
   try {
     const result = await knex('event').where({ id: req.params.id }).del();
 
-    return res.status(201).json(result);
+    return res.status(200).json(result);
   } catch (err) {
     // Return Internal Server Error 500, if the error occurs at the backend
     return res.status(500).json({ message: `Failed signing up: ${err}` });
+  }
+};
+
+const myNextEvent = async (req, res) => {
+  try {
+    const result = await knex('event as e')
+      .select('e.*')
+      .join('participants as p', 'p.event_id', 'e.id')
+      .where({ 'p.user_id': req.params.id });
+
+    if (!result) {
+      return res.status(200).josn(result);
+    }
+
+    result.sort((a, b) => Date.parse(a.show_time) - Date.parse(b.show_time));
+    return res.status(200).json(result[0]);
+  } catch (err) {
+    // Return Internal Server Error 500, if the error occurs at the backend
+    return res
+      .status(500)
+      .json({ message: `Failed fetching nextEvent: ${err}` });
   }
 };
 
@@ -105,4 +126,5 @@ module.exports = {
   fetchMyEvents,
   addEvent,
   deleteEvent,
+  myNextEvent,
 };

@@ -6,4 +6,9 @@ router
   .route('/:eventId')
   .get(authorize, participantController.fetchParticipants);
 
+router.route('/').post(authorize, participantController.AddParticipant);
+router
+  .route('/:eventId/:userId')
+  .delete(authorize, participantController.DeleteParticipant);
+
 module.exports = router;
