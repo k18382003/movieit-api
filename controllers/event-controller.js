@@ -27,7 +27,7 @@ const fetchEventDetail = async (req, res) => {
 
 const fetchMyEvents = async (req, res) => {
   const myevents = await knex('participants as p')
-    .select('p.ishost', 'p.event_id', 'e.movie_name', 'e.show_time', 'e.cinema')
+    .select('p.ishost', 'p.event_id as id', 'e.movie_name', 'e.show_time', 'e.cinema')
     .join('event as e', 'p.event_id', 'e.id')
     .where({ 'p.user_id': req.params.id });
 
