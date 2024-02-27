@@ -8,5 +8,6 @@ router
   .route('/area/:postalcode')
   .get(authorize, profileController.getProfileByArea);
 
+router.route('/uploadPhoto/:id').post(profileController.uploadPhoto);
 
 module.exports = router;
