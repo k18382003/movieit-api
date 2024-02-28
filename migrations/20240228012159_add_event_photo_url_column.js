@@ -2,8 +2,8 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = function (knex) {
-  return knex.schema.table('profile', (table) => {
+exports.up = function(knex) {
+  return knex.schema.table('event', (table) => {
     table.string('photo_url').nullable();
   });
 };
@@ -12,8 +12,8 @@ exports.up = function (knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function (knex) {
-  return knex.schema.table('profile', (table) => {
-    table.dropColumn('photo_url');
-  });
+exports.down = function(knex) {
+    return knex.schema.table('event', (table) => {
+      table.dropColumn('photo_url');
+    });
 };

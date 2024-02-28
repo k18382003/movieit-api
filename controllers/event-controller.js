@@ -1,5 +1,6 @@
 const knex = require('knex')(require('../knexfile'));
-const { ValidatingFields, isEmail } = require('../utils/formValidation');
+const { ValidatingFields } = require('../utils/formValidation');
+const cloudinary = require('cloudinary').v2;
 
 const fetchEvents = async (req, res) => {
   const events = await knex('event');
@@ -68,6 +69,7 @@ const addEvent = async (req, res) => {
       host: req.body.host,
       notes: req.body.notes,
       max_people: req.body.max,
+      photo_url: req.body.photo_url,
     };
 
     const eventId = await knex('event').insert(event);
@@ -120,6 +122,41 @@ const myNextEvent = async (req, res) => {
   }
 };
 
+cloudinary.config({
+  cloud_name: process.env.CloudinaryName,
+  api_key: process.env.Cloudinary_API_Key,
+  api_secret: process.env.Cloudinary_API_Secrete,
+});
+
+const opts = {
+  overwrite: true,
+  invalidate: true,
+  resource_type: 'auto',
+};
+
+const upload = (image) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(image, opts, (error, result) => {
+      if (result && result.secure_url) {
+        console.log(result.secure_url);
+        return resolve(result.secure_url);
+      }
+      console.log(error.message);
+      return reject({ message: error.message });
+    });
+  });
+};
+
+const uploadPhoto = async (req, res) => {
+  try {
+    const result = await upload(req.body.image);
+    return res.status(201).json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+};
+
 module.exports = {
   fetchEvents,
   fetchEventDetail,
@@ -127,4 +164,5 @@ module.exports = {
   addEvent,
   deleteEvent,
   myNextEvent,
+  uploadPhoto,
 };

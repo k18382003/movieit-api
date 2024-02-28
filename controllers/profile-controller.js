@@ -1,10 +1,5 @@
 const knex = require('knex')(require('../knexfile'));
-const { ValidatingFields, isEmail } = require('../utils/formValidation');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const JWT_Key = process.env.JWT_Key;
-const fs = require('fs');
-const { resolve } = require('path');
 const cloudinary = require('cloudinary').v2;
 
 const fetchUserProfile = async (req, res) => {

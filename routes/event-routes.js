@@ -8,5 +8,6 @@ router.route('/myevent/:id').get(authorize, eventController.fetchMyEvents);
 router.route('/').post(authorize, eventController.addEvent);
 router.route('/:id').delete(authorize, eventController.deleteEvent);
 router.route('/next/:id').get(authorize, eventController.myNextEvent);
+router.route('/uploadPhoto').post(authorize, eventController.uploadPhoto);
 
 module.exports = router;
