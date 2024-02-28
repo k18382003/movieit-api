@@ -6,6 +6,7 @@ const accountRoutes = require('./routes/account-routes');
 const profileRoutes = require('./routes/profile-routes');
 const eventsRoutes = require('./routes/event-routes');
 const participantsRoutes = require('./routes/participant-routes');
+const invitationRoutes = require('./routes/invitation-routes');
 
 const PORT = process.env.PORT || 8080;
 
@@ -21,6 +22,7 @@ app.use('/movieit/api/account', accountRoutes);
 app.use('/movieit/api/profile', profileRoutes);
 app.use('/movieit/api/events', eventsRoutes);
 app.use('/movieit/api/participants', participantsRoutes);
+app.use('/movieit/api/invitation', invitationRoutes);
 
 app.listen(PORT, () => {
   console.log(`running at http://localhost:${PORT}`);
