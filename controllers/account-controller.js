@@ -27,6 +27,21 @@ const signUp = async (req, res) => {
       return res.status(400).json({ message: `Invalid Email` });
     }
 
+    const duplicate_emails = await knex('user')
+      .where({ email: req.body.email })
+      .first();
+
+    if (duplicate_emails) {
+      return res.status(400).json({ message: `This email has been taken` });
+    }
+    const duplicate_usernames = await knex('user')
+      .where({ email: req.body.username })
+      .first();
+
+    if (duplicate_usernames) {
+      return res.status(400).json({ message: `This username has been taken` });
+    }
+
     // encrypted password
     const hashedPsw = bcrypt.hashSync(req.body.password);
 
@@ -38,7 +53,7 @@ const signUp = async (req, res) => {
     };
 
     const userId = await knex('user').insert(user);
-    const profileId = await knex('profile').insert({
+    await knex('profile').insert({
       user_id: userId,
       displayname: user.username,
       username: user.username,
@@ -73,7 +88,11 @@ const signIn = async (req, res) => {
         { username: user.username, userId: user.id },
         JWT_Key
       );
-      return res.status(200).json({ token: token });
+      await knex('signinLog').insert({
+        user_id: user.id,
+      });
+      const log = await knex('signinLog').where({ user_id: user.id });
+      return res.status(200).json({ token: token, first_signin: log.length == 1});
     } else {
       return res.sendStatus(401);
     }
