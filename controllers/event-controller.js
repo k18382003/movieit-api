@@ -27,7 +27,8 @@ const fetchMyEvents = async (req, res) => {
       'p.event_id as id',
       'e.movie_name',
       'e.show_time',
-      'e.cinema'
+      'e.cinema',
+      'e.photo_url'
     )
     .join('event as e', 'p.event_id', 'e.id')
     .where({ 'p.user_id': req.params.id });

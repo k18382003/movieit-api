@@ -56,6 +56,11 @@ const opts = {
   overwrite: true,
   invalidate: true,
   resource_type: 'auto',
+  width: 250,
+  height: 250,
+  quality: 'auto',
+  fetch_format: 'auto',
+  crop: 'fill',
 };
 
 const upload = (image) => {
