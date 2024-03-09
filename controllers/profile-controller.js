@@ -89,9 +89,69 @@ const uploadPhoto = async (req, res) => {
   }
 };
 
+const getNumHostedEvents = async (user_id) => {
+  const result = await knex('event').where({ host: user_id }).count();
+  return result;
+};
+
+const getNumInvitations = async (user_id) => {
+  const result = await knex.raw(
+    `With cte1 as (SELECT count(*) send FROM invitation where sender = ${user_id}), 
+      cte2 as (SELECT count(*) received FROM invitation where receiver = ${user_id}) 
+      SELECT send, received FROM cte1 join cte2`
+  );
+  return result[0];
+};
+
+const getNumPastMovieBuddies = async (user_id) => {
+  const result = await knex.raw(
+    `with
+      cte1 as (SELECT event_id as event_id from participants where user_id = ${user_id})
+      SELECT count(*) people FROM cte1 
+      join participants p 
+      join event e on e.id = p.event_id
+      where p.event_id = cte1.event_id 
+      and STR_TO_DATE(e.show_time,'%W %M %d %Y %H:%i') < now()
+      and p.user_id != ${user_id};`
+  );
+
+  return result[0];
+};
+
+const getMetrics = async (req, res) => {
+  try {
+    const hostedEvent = await getNumHostedEvents(req.params.id);
+    const eventData = await getNumInvitations(req.params.id);
+    const movieBudies = await getNumPastMovieBuddies(req.params.id);
+    const metrics = [
+      {
+        description: 'Total Hosted Event',
+        number: hostedEvent[0]['count(*)'],
+      },
+      {
+        description: 'Total Invitation Received',
+        number: eventData[0].received,
+      },
+      {
+        description: 'Total Invitation Sent',
+        number: eventData[0].send,
+      },
+      {
+        description: 'People Watched Movie With',
+        number: movieBudies[0].people,
+      },
+    ];
+    return res.status(200).json(metrics);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+};
+
 module.exports = {
   fetchUserProfile,
   editUserProfile,
   getProfileByArea,
   uploadPhoto,
+  getMetrics,
 };

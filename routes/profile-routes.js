@@ -9,5 +9,6 @@ router
   .get(authorize, profileController.getProfileByArea);
 
 router.route('/uploadPhoto/:id').post(profileController.uploadPhoto);
+router.route('/metrics/:id').get(profileController.getMetrics);
 
 module.exports = router;
