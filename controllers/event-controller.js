@@ -3,9 +3,18 @@ const { ValidatingFields } = require('../utils/formValidation');
 const cloudinary = require('cloudinary').v2;
 
 const fetchEvents = async (req, res) => {
-  const events = await knex('event');
+  try {
+    const { eventnum } = req.headers;
+    const events = await knex('event')
+      .orderBy('show_time', 'desc')
+      .offset(eventnum - 6)
+      .limit(6);
 
-  return res.status(200).json(events);
+    // Only return new events
+    return res.status(200).json(events);
+  } catch (error) {
+    return res.status(500).json(error);
+  }
 };
 
 const fetchEventDetail = async (req, res) => {
@@ -108,13 +117,17 @@ const myNextEvent = async (req, res) => {
       .select('e.*')
       .join('participants as p', 'p.event_id', 'e.id')
       .where({ 'p.user_id': req.params.id });
+    let newNext = result.filter(
+      (e) => new Date(e.show_time).getTime() > Date.now()
+    );
 
-    if (!result) {
-      return res.status(200).josn(result);
+    if (!!newNext) {
+      console.log('here');
+      return res.status(200).json(newNext);
     }
 
-    result.sort((a, b) => Date.parse(a.show_time) - Date.parse(b.show_time));
-    return res.status(200).json(result[0]);
+    newNext.sort((a, b) => Date.parse(a.show_time) - Date.parse(b.show_time));
+    return res.status(200).json(newNext[0]);
   } catch (err) {
     // Return Internal Server Error 500, if the error occurs at the backend
     return res
