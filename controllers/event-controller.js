@@ -5,13 +5,17 @@ const cloudinary = require('cloudinary').v2;
 const fetchEvents = async (req, res) => {
   try {
     const { eventnum } = req.headers;
+    const totalCnt = await knex('event').count('id as total');
     const events = await knex('event')
-      .orderBy('show_time', 'desc')
+      .orderByRaw("str_to_date(show_time, '%W %M %d %Y %H:%i') desc")
+      .whereRaw("str_to_date(show_time, '%W %M %d %Y %H:%i') > now()")
       .offset(eventnum - 6)
       .limit(6);
 
     // Only return new events
-    return res.status(200).json(events);
+    return res
+      .status(200)
+      .json({ events: events, totalNumEvents: totalCnt[0]?.total });
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -40,9 +44,43 @@ const fetchMyEvents = async (req, res) => {
       'e.photo_url'
     )
     .join('event as e', 'p.event_id', 'e.id')
-    .where({ 'p.user_id': req.params.id });
+    .where({ 'p.user_id': req.params.id })
+    .whereRaw("str_to_date(e.show_time, '%W %M %d %Y %H:%i') > now()");
 
-  return res.status(200).json(myevents);
+  const hostedEvents = myevents.filter((e) => e.ishost);
+  const invitedEvents = myevents.filter((e) => !e.ishost);
+
+  return res
+    .status(200)
+    .json({ hostedEvents: hostedEvents, invitedEvents: invitedEvents });
+};
+
+const fetchMyPastEvents = async (req, res) => {
+  const { eventnum } = req.headers;
+  const myTotalPastEvents = await knex('participants as p')
+    .join('event as e', 'p.event_id', 'e.id')
+    .where({ 'p.user_id': req.params.id })
+    .whereRaw("str_to_date(e.show_time, '%W %M %d %Y %H:%i') < now()")
+    .count();
+  const myPastEvents = await knex('participants as p')
+    .select(
+      'p.ishost',
+      'p.event_id as id',
+      'e.movie_name',
+      'e.show_time',
+      'e.cinema',
+      'e.photo_url'
+    )
+    .join('event as e', 'p.event_id', 'e.id')
+    .where({ 'p.user_id': req.params.id })
+    .whereRaw("str_to_date(e.show_time, '%W %M %d %Y %H:%i') < now()")
+    .offset(eventnum - 1)
+    .limit(1);
+
+  return res.status(200).json({
+    myPastEvents: myPastEvents,
+    total: myTotalPastEvents[0]['count(*)'],
+  });
 };
 
 const addEvent = async (req, res) => {
@@ -122,7 +160,6 @@ const myNextEvent = async (req, res) => {
     );
 
     if (!!newNext) {
-      console.log('here');
       return res.status(200).json(newNext);
     }
 
@@ -175,6 +212,7 @@ module.exports = {
   fetchEvents,
   fetchEventDetail,
   fetchMyEvents,
+  fetchMyPastEvents,
   addEvent,
   deleteEvent,
   myNextEvent,
